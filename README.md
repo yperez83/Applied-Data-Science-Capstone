@@ -18,6 +18,9 @@ Introduce your project, including its background, context, and the problem you a
 ## Methodology
 Explain the methods and techniques used in your project. This section should provide enough detail for others to understand how you conducted your work.
 
+[View the interactive map](https://github.com/yperez83/Applied-Data-Science-Capstone/blob/8a7e17b1a8d7e34ee47057d1eb8297d9b0ecf2af/06_Folium_Interactive_Map.html)
+
+
 ## Results
 Present the results and findings of your project. You can use charts, graphs, or textual descriptions to convey your results effectively.
 
