@@ -10,13 +10,17 @@ This notebook will be used for the Peer Reviewed Assignment of the Applied Data 
 6. [Appendix](#appendix)
 
 ## Executive Summary
-Provide a brief overview of your project and its main objectives.
+Using trustworthy launch data and various computer models, the optimum parameters of launching a successful competing rocket launching company were determined.
 
 ## Introduction
-Introduce your project, including its background, context, and the problem you aim to solve.
+The primary goal of this research is to develop a predictive model that can accurately determine the likelihood of successfully landing the Falcon 9 first stage of a rocket launch. SpaceX significantly reduce launch costs by reusing the first stage of the Falcon 9 rocket. By reliably predicting the success of this critical phase, the research aims to estimate the overall cost of a launch, a key factor that is crucial for a competitor in the rocket launch market. Real world launch data are leveraged to build our predictive model.
 
 ## Methodology
-Explain the methods and techniques used in your project. This section should provide enough detail for others to understand how you conducted your work.
+Collect - Collect raw launch data from high-ranking websites
+Preprocess - Clean data by handling missing values and filtering
+EDA Perform  - exploratory data analysis and SQL
+Visualization  - Create interactive visual analytics using Folium and Plotly Dash
+AI Models - Perform predictive analysis using AI suite in Python
 
 [View the interactive map](https://github.com/yperez83/Applied-Data-Science-Capstone/blob/8a7e17b1a8d7e34ee47057d1eb8297d9b0ecf2af/06_Folium_Interactive_Map.html)
 
@@ -25,13 +29,7 @@ Explain the methods and techniques used in your project. This section should pro
 Present the results and findings of your project. You can use charts, graphs, or textual descriptions to convey your results effectively.
 
 ## Conclusion
-Summarize the key takeaways and insights from your project. Discuss any implications and future work if applicable.
-
-## Appendix
-Include any additional information, data, or supplementary materials that support your project but don't fit into the main sections.
-
-## License
-This project is licensed under the [License Name] - see the [LICENSE.md](LICENSE.md) file for details.
-
-## Acknowledgments
-Mention any individuals, organizations, or resources you want to acknowledge or give credit to.
+Optimal Landing Site: Kennedy Space Center Launch Complex 39 A (KSC LC 39 A)
+Optimal Pay Load : 2,000 kg 6,000 kg
+Optimal Boosters : F 9 v 1.1
+Optimal Orbit : ISS
