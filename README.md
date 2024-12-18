@@ -7,7 +7,6 @@ This notebook will be used for the Peer Reviewed Assignment of the Applied Data 
 3. [Methodology](#methodology)
 4. [Results](#results)
 5. [Conclusion](#conclusion)
-6. [Appendix](#appendix)
 
 ## Executive Summary
 Using trustworthy launch data and various computer models, the optimum parameters of launching a successful competing rocket launching company were determined.
