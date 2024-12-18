@@ -5,7 +5,6 @@ This notebook will be used for the Peer Reviewed Assignment of the Applied Data 
 1. [Executive Summary](#executive-summary)
 2. [Introduction](#introduction)
 3. [Methodology](#methodology)
-4. [Results](#results)
 5. [Conclusion](#conclusion)
 
 ## Executive Summary
@@ -22,10 +21,6 @@ Visualization  - Create interactive visual analytics using Folium and Plotly Das
 AI Models - Perform predictive analysis using AI suite in Python
 
 [View the interactive map](https://github.com/yperez83/Applied-Data-Science-Capstone/blob/8a7e17b1a8d7e34ee47057d1eb8297d9b0ecf2af/06_Folium_Interactive_Map.html)
-
-
-## Results
-Present the results and findings of your project. You can use charts, graphs, or textual descriptions to convey your results effectively.
 
 ## Conclusion
 Optimal Landing Site: Kennedy Space Center Launch Complex 39 A (KSC LC 39 A)
