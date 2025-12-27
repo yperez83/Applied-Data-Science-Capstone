@@ -34,6 +34,8 @@ const VideoAnnotator: React.FC = () => {
   const [activeClass, setActiveClass] = useState<ClassDef>(CLASSES[0]);
   const [videoDimensions, setVideoDimensions] = useState({ width: 640, height: 360 });
   const [savePath, setSavePath] = useState<string>('');
+  const [activeTool, setActiveTool] = useState<'polyline' | 'magic_wand'>('polyline');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Use a sample video
   const videoSrc = "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm";
@@ -47,16 +49,84 @@ const VideoAnnotator: React.FC = () => {
     }
   };
 
-  const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
+  const handleStageClick = async (e: Konva.KonvaEventObject<MouseEvent>) => {
     // If we clicked on a circle, don't add a new point
     if (e.target instanceof Konva.Circle) {
       return;
     }
 
     const stage = e.target.getStage();
-    if (stage) {
-      const pointerPosition = stage.getPointerPosition();
-      if (pointerPosition) {
+    if (!stage) return;
+    const pointerPosition = stage.getPointerPosition();
+    if (!pointerPosition) return;
+
+    if (activeTool === 'magic_wand') {
+        // Magic Wand Logic
+        if (isLoading) return;
+
+        if (videoRef.current) {
+            videoRef.current.pause();
+            setIsLoading(true);
+
+            try {
+                // Capture frame
+                const canvas = document.createElement('canvas');
+                canvas.width = videoRef.current.videoWidth;
+                canvas.height = videoRef.current.videoHeight;
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+
+                    canvas.toBlob(async (blob) => {
+                        if (blob) {
+                            const formData = new FormData();
+                            formData.append('file', blob, 'frame.jpg');
+                            formData.append('prompt_coords', `${pointerPosition.x},${pointerPosition.y}`);
+
+                            try {
+                                const response = await fetch('http://localhost:8000/magic_segment', {
+                                    method: 'POST',
+                                    body: formData,
+                                });
+
+                                if (response.ok) {
+                                    const pointsData = await response.json();
+                                    // Convert to our Point format
+                                    const newPoints: Point[] = pointsData.map((p: {x: number, y: number}, index: number) => ({
+                                        x: p.x,
+                                        y: p.y,
+                                        id: `${Date.now()}-${index}`
+                                    }));
+
+                                    const newShape: Shape = {
+                                        id: Date.now().toString(),
+                                        class: activeClass.name,
+                                        color: activeClass.color,
+                                        points: newPoints,
+                                    };
+
+                                    setShapes((prev) => [...prev, newShape]);
+                                } else {
+                                    console.error('Magic segment failed:', await response.text());
+                                    alert('Magic segment failed. See console.');
+                                }
+                            } catch (err) {
+                                console.error('API Error:', err);
+                                alert(`API Error: ${err}`);
+                            } finally {
+                                setIsLoading(false);
+                            }
+                        }
+                    }, 'image/jpeg');
+                }
+            } catch (e) {
+                console.error("Error capturing frame:", e);
+                setIsLoading(false);
+            }
+        }
+
+    } else {
+        // Polyline Logic
         setCurrentPoints([
           ...currentPoints,
           {
@@ -65,7 +135,6 @@ const VideoAnnotator: React.FC = () => {
             id: Date.now().toString(),
           },
         ]);
-      }
     }
   };
 
@@ -158,13 +227,14 @@ const VideoAnnotator: React.FC = () => {
           ref={videoRef}
           src={videoSrc}
           controls
+          crossOrigin="anonymous"
           style={{ width: '100%', height: '100%', display: 'block' }}
           onLoadedMetadata={handleVideoLoadedMetadata}
         />
         <Stage
           width={videoDimensions.width}
           height={videoDimensions.height}
-          style={{ position: 'absolute', top: 0, left: 0 }}
+          style={{ position: 'absolute', top: 0, left: 0, cursor: activeTool === 'magic_wand' ? (isLoading ? 'wait' : 'crosshair') : 'default' }}
           onClick={handleStageClick}
         >
           <Layer>
@@ -176,17 +246,17 @@ const VideoAnnotator: React.FC = () => {
                   stroke={shape.color}
                   strokeWidth={2}
                   tension={0}
-                  closed={false}
+                  closed={true}
                 />
                 {shape.points.map((point) => (
                   <Circle
                     key={point.id}
                     x={point.x}
                     y={point.y}
-                    radius={5}
+                    radius={3}
                     fill="white"
                     stroke={shape.color}
-                    strokeWidth={2}
+                    strokeWidth={1}
                     draggable
                     onDragMove={(e) => handleDragMove(e, point.id, shape.id)}
                   />
@@ -224,7 +294,43 @@ const VideoAnnotator: React.FC = () => {
       </div>
 
       <div style={{ padding: '20px', background: '#f0f0f0', borderRadius: '8px', minWidth: '200px' }}>
-        <h3>Toolbar (v2.0)</h3>
+        <h3>Toolbar (v2.1 AI)</h3>
+
+        <div style={{ marginBottom: '20px', borderBottom: '1px solid #ccc', paddingBottom: '10px' }}>
+            <h4>Tools</h4>
+            <div style={{ display: 'flex', gap: '5px' }}>
+                <button
+                    onClick={() => setActiveTool('polyline')}
+                    style={{
+                        flex: 1,
+                        padding: '8px',
+                        backgroundColor: activeTool === 'polyline' ? '#2196F3' : 'white',
+                        color: activeTool === 'polyline' ? 'white' : 'black',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Polyline
+                </button>
+                <button
+                    onClick={() => setActiveTool('magic_wand')}
+                    style={{
+                        flex: 1,
+                        padding: '8px',
+                        backgroundColor: activeTool === 'magic_wand' ? '#9C27B0' : 'white',
+                        color: activeTool === 'magic_wand' ? 'white' : 'black',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Magic Wand ✨
+                </button>
+            </div>
+            {activeTool === 'magic_wand' && <p style={{fontSize: '0.8em', color: '#666'}}>Click on the video to auto-segment.</p>}
+        </div>
+
         <div style={{ marginBottom: '20px' }}>
           <h4>Classes</h4>
           {CLASSES.map((cls) => (
