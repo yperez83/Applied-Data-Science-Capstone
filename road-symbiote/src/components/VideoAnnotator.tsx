@@ -184,7 +184,7 @@ const VideoAnnotator: React.FC = () => {
       </div>
 
       <div style={{ padding: '20px', background: '#f0f0f0', borderRadius: '8px', minWidth: '200px' }}>
-        <h3>Toolbar</h3>
+        <h3>Toolbar (v2.0)</h3>
         <div style={{ marginBottom: '20px' }}>
           <h4>Classes</h4>
           {CLASSES.map((cls) => (
