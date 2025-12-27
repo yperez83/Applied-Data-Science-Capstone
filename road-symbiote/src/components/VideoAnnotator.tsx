@@ -33,6 +33,7 @@ const VideoAnnotator: React.FC = () => {
   const [currentPoints, setCurrentPoints] = useState<Point[]>([]);
   const [activeClass, setActiveClass] = useState<ClassDef>(CLASSES[0]);
   const [videoDimensions, setVideoDimensions] = useState({ width: 640, height: 360 });
+  const [savePath, setSavePath] = useState<string>('');
 
   // Use a sample video
   const videoSrc = "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm";
@@ -109,6 +110,45 @@ const VideoAnnotator: React.FC = () => {
       points: shape.points.map(({ x, y }) => ({ x, y }))
     }));
     console.log(JSON.stringify(exportData, null, 2));
+  };
+
+  const handleSaveData = async () => {
+    if (!savePath) {
+      alert("Please enter a save location.");
+      return;
+    }
+
+    const exportData = shapes.map(shape => ({
+      id: shape.id,
+      class: shape.class,
+      points: shape.points.map(({ x, y }) => ({ x, y }))
+    }));
+
+    const payload = {
+        target_directory: savePath,
+        file_name: 'video_01_data.json',
+        shapes: exportData
+    };
+
+    try {
+        const response = await fetch('http://localhost:8000/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert(`Success! Data saved to: ${result.path}`);
+        } else {
+            const errorText = await response.text();
+            alert(`Error saving data: ${errorText}`);
+        }
+    } catch (error) {
+        alert(`Network error: ${error}`);
+    }
   };
 
   return (
@@ -225,6 +265,38 @@ const VideoAnnotator: React.FC = () => {
                 }}
             >
                 Finish Shape
+            </button>
+        </div>
+
+        <div style={{ marginBottom: '20px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Save Location</label>
+            <input
+                type="text"
+                value={savePath}
+                onChange={(e) => setSavePath(e.target.value)}
+                placeholder="E.g., /tmp/road_data"
+                style={{
+                    width: '100%',
+                    padding: '8px',
+                    marginBottom: '10px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    boxSizing: 'border-box'
+                }}
+            />
+            <button
+                onClick={handleSaveData}
+                style={{
+                    width: '100%',
+                    padding: '10px',
+                    backgroundColor: '#FF9800',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                }}
+            >
+                Save Data
             </button>
         </div>
 
